@@ -1,0 +1,57 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: support-ticket-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html:rw
+    networks:
+      - support-ticket
+
+  nginx:
+    image: nginx:alpine
+    container_name: support-ticket-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./src:/var/www/html:rw
+      - ./config/nginx:/etc/nginx/conf.d
+    networks:
+      - support-ticket
+
+  mysql:
+    image: mysql:8.0
+    container_name: support-ticket-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: support_ticket
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: password
+      MYSQL_USER: support_ticket
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - support-ticket
+
+  redis:
+    image: redis:alpine
+    container_name: support-ticket-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - support-ticket
+
+networks:
+  support-ticket:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

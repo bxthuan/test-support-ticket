@@ -1,0 +1,8 @@
+src/.git
+src/node_modules
+src/vendor
+src/storage/logs/*
+src/storage/framework/cache/*
+src/storage/framework/sessions/*
+src/storage/framework/views/*
+.claude
