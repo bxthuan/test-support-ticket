@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -14,18 +14,9 @@ RUN pecl install redis && docker-php-ext-enable redis
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 WORKDIR /var/www/html
 
-COPY src/composer.json src/composer.lock* ./
-
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist || true
-
-COPY src/ .
-
-RUN composer dump-autoload --optimize || true
-
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
-
-RUN chown -R www-data:www-data /var/www
-
-USER www-data
+ENTRYPOINT ["docker-entrypoint.sh"]
