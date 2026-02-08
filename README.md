@@ -4,7 +4,7 @@ A production using Laravel 11 application that automatically analyzes customer s
 
 ## Tech Stack
 
-- **Framework**: Laravel 11 (PHP 8.1)
+- **Framework**: Laravel 11 (PHP 8.2)
 - **Database**: MySQL 8.0
 - **Cache/Queue**: Redis Alpine
 - **Web Server**: Nginx
