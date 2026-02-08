@@ -10,6 +10,9 @@ services:
       - ./src:/var/www/html:rw
     networks:
       - support-ticket
+    depends_on:
+      - mysql
+      - redis
 
   queue:
     build:
@@ -33,10 +36,12 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./src:/var/www/html:rw
+      - ./src:/var/www/html:ro
       - ./config/nginx:/etc/nginx/conf.d
     networks:
       - support-ticket
+    depends_on:
+      - app
 
   mysql:
     image: mysql:8.0
