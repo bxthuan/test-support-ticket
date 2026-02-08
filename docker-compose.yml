@@ -11,6 +11,21 @@ services:
     networks:
       - support-ticket
 
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile.queue
+    container_name: support-ticket-queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html:rw
+    networks:
+      - support-ticket
+    depends_on:
+      - mysql
+      - redis
+
   nginx:
     image: nginx:alpine
     container_name: support-ticket-nginx

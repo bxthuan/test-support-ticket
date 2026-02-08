@@ -15,6 +15,9 @@ if [ -z "$(grep APP_KEY= .env | cut -d '=' -f2)" ]; then
     php artisan key:generate --ansi
 fi
 
+echo "Running migrations..."
+php artisan migrate --force
+
 echo "Setting permissions..."
 chown -R www-data:www-data storage bootstrap/cache
 
