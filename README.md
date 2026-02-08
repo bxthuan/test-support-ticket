@@ -19,6 +19,38 @@ A production using Laravel 11 application that automatically analyzes customer s
 - Git
 - (Optional) AI API keys for OpenAI or Google Gemini
 
+**⚠️ IMPORTANT for Windows Users:**
+
+If you're using Docker Desktop on Windows, you **MUST** convert the entrypoint scripts to use LF (Linux) line endings instead of CRLF (Windows default). Otherwise, the containers will fail to start.
+
+**Fix line endings before building:**
+
+1. **Using Git (Recommended):**
+   ```bash
+   # Configure Git to checkout with LF endings
+   git config core.autocrlf input
+   git rm --cached -r .
+   git reset --hard
+   ```
+
+2. **Using VS Code:**
+   - Open `docker-entrypoint.sh`
+   - Click "CRLF" in bottom-right corner
+   - Select "LF"
+   - Save the file
+   - Repeat for `queue-entrypoint.sh`
+
+3. **Using Notepad++:**
+   - Edit → EOL Conversion → Unix (LF)
+   - Save both `docker-entrypoint.sh` and `queue-entrypoint.sh`
+
+**Verify the fix:**
+```bash
+# Should show "LF" for both files
+file docker-entrypoint.sh
+file queue-entrypoint.sh
+```
+
 ### 1. Clone the Repository
 
 ```bash
@@ -231,15 +263,55 @@ This multi-layered approach ensures that even if the AI deviates slightly, the a
 
 ## Docker Commands Reference
 
+### Starting Containers (First Time)
+
+When you run `docker-compose up -d` for the first time, the setup process takes **2-3 minutes** to complete automatically:
+
+1. **Composer Install** (~90 seconds) - Downloads all Laravel dependencies
+2. **Database Migration** (~10 seconds) - Creates all required tables
+3. **Queue Worker Startup** (~5 seconds) - Waits for composer and database to be ready
+
+**Monitor the progress:**
+
 ```bash
+# Watch app container logs
+docker-compose logs -f app
+
+# You'll see output like:
+# "Installing composer dependencies..."
+# "Running migrations..."
+# "Setting permissions..."
+# "NOTICE: ready to handle connections"
+```
+
+**Verify setup is complete:**
+
+```bash
+# Check if composer finished
+docker-compose exec app ls vendor/autoload.php
+
+# Check if migrations ran
+docker-compose exec app php artisan migrate:status
+
+# Test the application
+curl http://localhost:8000/
+```
+
+**Note:** Subsequent restarts are much faster (~10 seconds) because composer only reinstalls if `vendor/autoload.php` is missing.
+
+---
+
+### Common Docker Commands
+
+```bash
+# Build containers
+docker-compose build --no-cache
+
 # Start all containers
 docker-compose up -d
 
 # Stop all containers
 docker-compose down
-
-# Rebuild containers
-docker-compose up -d --build
 
 # View logs
 docker-compose logs -f
